@@ -5,3 +5,4 @@ logs
 *.cache
 build
 .idea
+.env
