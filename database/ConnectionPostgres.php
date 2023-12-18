@@ -16,29 +16,30 @@ final class ConnectionPostgres
             $port = $databaseUrl['port'];
             $dbName = ltrim($databaseUrl['path'], '/');
 
-            $conStr ="pgsql:host=$host;port=$port;dbname=$dbName;user=$username;password=$password";
+            $conStr = "pgsql:host=$host;port=$port;dbname=$dbName;user=$username;password=$password";
             $pdo = new \PDO($conStr);
             $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             return $pdo;
         }
-            $params = parse_ini_file('../database.dev.ini');
-            if ($params === false) {
-                throw new \Exception("Error reading database configuration file");
-            }
 
-            $conStr = sprintf(
-                "pgsql:host=%s;port=%d;dbname=%s;user=%s;password=%s",
-                $params['host'],
-                $params['port'],
-                $params['database'],
-                $params['user'],
-                $params['password']
-            );
+        $params = parse_ini_file('../database.dev.ini');
+        if ($params === false) {
+            throw new \Exception("Error reading database configuration file");
+        }
 
-            $pdo = new \PDO($conStr);
-            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $conStr = sprintf(
+            "pgsql:host=%s;port=%d;dbname=%s;user=%s;password=%s",
+            $params['host'],
+            $params['port'],
+            $params['database'],
+            $params['user'],
+            $params['password']
+        );
 
-            return $pdo;
+        $pdo = new \PDO($conStr);
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+        return $pdo;
     }
 
     public static function get()
