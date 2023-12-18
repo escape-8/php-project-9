@@ -4,10 +4,13 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use Database\ConnectionPostgres;
 use Database\DbOperation;
+use GuzzleHttp\Exception\TransferException;
 use Slim\Factory\AppFactory;
 use DI\Container;
 use Carbon\Carbon;
 use Validator\UrlValidator;
+use GuzzleHttp\Client;
+use DiDom\Document;
 
 session_start();
 
@@ -35,7 +38,7 @@ $app->get('/', function ($request, $response) {
 })->setName('main');
 
 $app->get('/urls', function ($request, $response) use ($pdo) {
-    $sql = "SELECT * FROM urls";
+    $sql = "SELECT * FROM urls ORDER BY id DESC";
     $data = $pdo->query($sql)->fetchAll();
     $params = ['data' => $data];
     return $this->get('renderer')->render($response, 'urls/sites.phtml', $params);
@@ -46,9 +49,12 @@ $app->get('/urls/{id}', function ($request, $response, $args) use ($pdo) {
     $sql = "SELECT * FROM urls WHERE id = $id";
     $data = array_merge([], ...$pdo->query($sql)->fetchAll());
     $messages = $this->get('flash')->getMessages();
+    $sqlChecks = "SELECT * FROM url_checks WHERE url_id = $id ORDER BY id DESC";
+    $checks = $pdo->query($sqlChecks)->fetchAll();
     $params = [
         'data' => $data,
-        'flash' => $messages ?? []
+        'flash' => $messages ?? [],
+        'checks' => $checks ?? []
     ];
     return $this->get('renderer')->render($response, 'urls/show.phtml', $params);
 })->setName('page');
@@ -86,5 +92,41 @@ $app->post('/urls', function ($request, $response) use ($pdo, $router) {
     ];
     return $this->get('renderer')->render($response->withStatus(422), 'index.phtml', $params);
 })->setName('add.url');
+
+$app->post('/urls/{url_id}/checks', function ($request, $response, $args) use ($pdo, $router) {
+    $id = $args['url_id'];
+    $sqlName = "SELECT name FROM urls WHERE id = $id";
+    $urlName = array_merge([], ...$pdo->query($sqlName)->fetchAll());
+
+    $client = new Client();
+    try {
+        $client->request('GET', $urlName['name']);
+    } catch (TransferException) {
+        $this->get('flash')->addMessage('errors', 'Произошла ошибка при проверке, не удалось подключиться');
+        return $response->withRedirect($router->urlFor('page', ['id' => $id]));
+    }
+
+    $resp = $client->request('GET', $urlName['name']);
+    $statusCode = $resp->getStatusCode();
+
+    $document = new Document($urlName['name'], true);
+    $h1 = optional($document->first('h1'))->text();
+    $title = optional($document->first('title'))->text();
+    $description = optional($document->first('meta[name="description"]'))->getAttribute('content');
+    $created_at = Carbon::now();
+
+    $sql = "INSERT INTO url_checks(url_id, status_code, h1, title, description, created_at) 
+            VALUES (:id, :statusCode, :h1, :title, :description, :createdAt)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindValue(':id', $id);
+    $stmt->bindValue(':statusCode', $statusCode);
+    $stmt->bindValue(':h1', $h1);
+    $stmt->bindValue(':title', $title);
+    $stmt->bindValue(':description', $description);
+    $stmt->bindValue(':createdAt', $created_at);
+    $stmt->execute();
+    $this->get('flash')->addMessage('success', 'Страница успешно проверена');
+    return $response->withRedirect($router->urlFor('page', ['id' => $id]));
+})->setName('checks');
 
 $app->run();
