@@ -38,7 +38,14 @@ $app->get('/', function ($request, $response) {
 })->setName('main');
 
 $app->get('/urls', function ($request, $response) use ($pdo) {
-    $sql = "SELECT * FROM urls ORDER BY id DESC";
+    $sql = "SELECT urls.id, urls.name, url_checks.status_code, url_checks.last_check
+    FROM urls
+    LEFT JOIN (
+      SELECT url_id, MAX(created_at) AS last_check, status_code
+      FROM url_checks
+      GROUP BY url_id, status_code
+    ) url_checks ON urls.id = url_checks.url_id
+    ORDER BY urls.id DESC";
     $data = $pdo->query($sql)->fetchAll();
     $params = ['data' => $data];
     return $this->get('renderer')->render($response, 'urls/sites.phtml', $params);
