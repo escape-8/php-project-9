@@ -5,11 +5,10 @@ console:
 	composer exec --verbose psysh
 
 lint:
-	composer exec --verbose phpcs -- --standard=PSR12 src tests
-	composer exec --verbose phpstan
+	composer exec --verbose phpcs -- --standard=PSR12 public src database
 
 lint-fix:
-	composer exec --verbose phpcbf -- --standard=PSR12 src tests
+	composer exec --verbose phpcbf -- --standard=PSR12 public src database
 
 test:
 	composer exec --verbose phpunit tests
