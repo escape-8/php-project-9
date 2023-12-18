@@ -30,7 +30,7 @@
     </header>
     <?php foreach ($flash as $key => $messages): ?>
         <?php foreach ($messages as $message): ?>
-            <div class="alert alert-success" role="alert">
+            <div class="alert alert-<?= htmlspecialchars($key) ?>" role="alert">
                 <?= htmlspecialchars($message) ?>
             </div>
         <?php endforeach; ?>
