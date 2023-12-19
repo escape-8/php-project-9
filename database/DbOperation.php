@@ -4,14 +4,14 @@ namespace Database;
 
 class DbOperation
 {
-    private $pdo;
+    private \PDO $pdo;
 
-    public function __construct($pdo)
+    public function __construct(\PDO $pdo)
     {
         $this->pdo = $pdo;
     }
 
-    public function isNameDuplicate($table, $name): bool
+    public function isNameDuplicate(string $table, string $name): bool
     {
         $sql = "SELECT * FROM $table WHERE name = :name";
         $stmt = $this->pdo->prepare($sql);
