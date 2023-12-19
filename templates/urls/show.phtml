@@ -30,7 +30,12 @@
     </header>
     <?php foreach ($flash as $key => $messages): ?>
         <?php foreach ($messages as $message): ?>
-            <div class="alert alert-<?= htmlspecialchars($key) ?>" role="alert">
+            <div class="alert <?php
+            if ($key === 'errors'):
+                echo htmlspecialchars('alert-danger');
+            else:
+                echo htmlspecialchars('alert-success');
+            endif;?>" role="alert">
                 <?= htmlspecialchars($message) ?>
             </div>
         <?php endforeach; ?>
@@ -74,10 +79,10 @@
                     <tr>
                         <td><?= htmlspecialchars($check['id']) ?></td>
                         <td><?= htmlspecialchars($check['status_code']) ?></td>
-                        <td><?= htmlspecialchars($check['h1']) ?></td>
-                        <td><?= htmlspecialchars($check['title']) ?></td>
-                        <td><?= htmlspecialchars($check['description']) ?></td>
-                        <td><?= htmlspecialchars($check['created_at']) ?></td>
+                        <td class="text-break"><?= htmlspecialchars($check['h1']) ?></td>
+                        <td class="text-break"><?= htmlspecialchars($check['title']) ?></td>
+                        <td class="text-break"><?= htmlspecialchars($check['description']) ?></td>
+                        <td class="text-break"><?= htmlspecialchars($check['created_at']) ?></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
