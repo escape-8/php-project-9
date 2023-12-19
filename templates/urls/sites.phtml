@@ -32,15 +32,13 @@
         <div class="container-lg mt-3">
             <h1>Сайты</h1>
         <table class="table table-bordered table-responsive" data-test="urls">
-            <thead>
-                <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Имя</th>
-                    <th scope="col">Последняя проверка</th>
-                    <th scope="col">Код ответа</th>
-                </tr>
-            </thead>
             <tbody>
+                <tr>
+                    <th>ID</th>
+                    <th>Имя</th>
+                    <th>Последняя проверка</th>
+                    <th>Код ответа</th>
+                </tr>
                 <?php foreach ($data as $row): ?>
                     <tr>
                         <td><?= htmlspecialchars($row['id']) ?></td>
