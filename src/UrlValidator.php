@@ -27,10 +27,6 @@ class UrlValidator
             $errors['url'] = 'Некорректный URL';
         }
 
-        if (strpbrk($parsedUrl['host'], '[]?<>=*&!""№;%:()_-')) {
-            $errors['url'] = 'Некорректный URL';
-        }
-
         return $errors;
     }
 }
